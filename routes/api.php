@@ -42,3 +42,14 @@ Route::middleware('auth:sanctum')->group(function () {
     // --- المسار الجديد لاستكمال البروفايل ---
     Route::post('/profile/complete', [ProfileController::class, 'completeProfile']);
 });
+// ==========================================
+    // مسارات المشاريع الخيرية (Projects)
+    // ==========================================
+
+    // مسار عرض كل المشاريع (متاح لأي شخص مسجل الدخول)
+    Route::get('/projects', [App\Http\Controllers\Api\ProjectController::class, 'index']);
+
+    // مسار إضافة مشروع (محمي بصلاحية "الجمعية" فقط)
+   Route::middleware(['auth:sanctum', 'role:organization'])->group(function () {
+    Route::post('/projects', [App\Http\Controllers\Api\ProjectController::class, 'store']);
+});

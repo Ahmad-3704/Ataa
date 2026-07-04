@@ -21,4 +21,12 @@ class Organization extends Model
     {
         return $this->belongsTo(User::class);
     }
+    /**
+     * علاقة الجمعية مع المشاريع:
+     * الجمعية الواحدة "لديها العديد" من المشاريع
+     */
+    public function projects()
+    {
+        return $this->hasMany(Project::class);
+    }
 }
