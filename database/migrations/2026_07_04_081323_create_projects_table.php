@@ -17,7 +17,6 @@ return new class extends Migration
             // ربط المشروع بالجمعية التي أنشأته
             // استخدمنا organization_id لربطه بجدول organizations الذي أنشأناه سابقاً
             $table->foreignId('organization_id')->constrained('organizations')->onDelete('cascade');
-
             // تفاصيل المشروع
             $table->string('title'); // اسم المشروع
             $table->text('description'); // وصف المشروع

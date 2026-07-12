@@ -11,17 +11,33 @@ class ProjectController extends Controller
     /**
      * عرض جميع المشاريع المتاحة
      */
-    public function index()
+   public function index()
     {
-        // جلب كل المشاريع النشطة مع بيانات الجمعية (واسم المستخدم الخاص بالجمعية)
+        // جلب المشاريع مع العلاقات
         $projects = Project::with('organization.user')
             ->where('status', 'active')
             ->get();
 
+        // السحر هنا: تغليف البيانات وتجهيزها للفرونت إند
+        $formattedProjects = $projects->map(function ($project) {
+            return [
+                'id' => $project->id,
+                'title' => $project->title,
+                'description' => $project->description,
+                'target_amount' => $project->target_amount,
+                'collected_amount' => $project->collected_amount,
+                'status' => $project->status,
+
+                // إضافة اسم الجمعية للرد (بدون ما يكون محفوظ بجدول المشاريع!)
+                'organization_name' => $project->organization->user->name ?? 'غير معروف',
+                'organization_id' => $project->organization_id,
+            ];
+        });
+
         return response()->json([
             'status' => 'success',
             'message' => 'تم جلب المشاريع بنجاح',
-            'data' => $projects
+            'data' => $formattedProjects // نرسل البيانات المغلفة
         ]);
     }
 
