@@ -21,6 +21,7 @@ class User extends Authenticatable
         'phone',
         'role',
         'profile_image',
+        'wallet_balance'
     ];
 
     /**
@@ -66,5 +67,10 @@ class User extends Authenticatable
     public function donor()
     {
         return $this->hasOne(Donor::class);
+    }
+    // المستخدم يملك عدة تبرعات
+    public function donations()
+    {
+        return $this->hasMany(Donation::class);
     }
 }

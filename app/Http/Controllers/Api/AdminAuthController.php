@@ -43,7 +43,7 @@ class AdminAuthController extends Controller
             'password' => 'required',
         ]);
 
-        $admin = Admin::where('email', $request->email)->first();
+        $admin = Admin::query()->where('email', $request->email)->first();
 
         if (!$admin || !Hash::check($request->password, $admin->password)) {
             return response()->json(['message' => 'بيانات دخول المدير غير صحيحة'], 401);

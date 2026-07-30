@@ -4,9 +4,13 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash; // لا تنسَ هذا السطر لتشفير كلمة المرور
 
 class ProfileController extends Controller
 {
+    /**
+     * استكمال بيانات الملف الشخصي بناءً على دور المستخدم
+     */
     public function completeProfile(Request $request)
     {
         $user = $request->user(); // جلب المستخدم المسجل دخوله حالياً
@@ -18,7 +22,6 @@ class ProfileController extends Controller
                 'address' => 'required|string',
                 'description' => 'nullable|string',
             ]);
-            // updateOrCreate: إذا كان عنده بروفايل بيعدله، وإذا ما عنده بينشئ واحد جديد
             $user->organization()->updateOrCreate(['user_id' => $user->id], $validated);
         }
 
@@ -55,6 +58,50 @@ class ProfileController extends Controller
         return response()->json([
             'message' => 'تم تحديث واستكمال بيانات الملف الشخصي بنجاح',
             'user' => $user
+        ], 200);
+    }
+
+    /**
+     * تحديث البيانات الأساسية (الاسم والبريد الإلكتروني لأي مستخدم)
+     */
+    public function updateInfo(Request $request)
+    {
+        $user = $request->user();
+
+        // التحقق من البيانات (نسمح بتحديث الاسم أو الإيميل، ونتأكد أن الإيميل غير مستخدم لغيره)
+        $request->validate([
+            'name' => 'sometimes|required|string|max:255',
+            'email' => 'sometimes|required|email|unique:users,email,' . $user->id,
+        ]);
+
+        $user->update($request->only(['name', 'email']));
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'تم تحديث البيانات الشخصية الأساسية بنجاح.',
+            'data' => clone $user
+        ], 200);
+    }
+
+    /**
+     * تغيير كلمة المرور لأي مستخدم
+     */
+    public function updatePassword(Request $request)
+    {
+        // التحقق من كلمة المرور الحالية والجديدة
+        $request->validate([
+            'current_password' => 'required|current_password',
+            'new_password' => 'required|string|min:8|confirmed',
+        ]);
+
+        // تشفير وتحديث كلمة المرور
+        $request->user()->update([
+            'password' => Hash::make($request->new_password)
+        ]);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'تم تغيير كلمة المرور بنجاح.'
         ], 200);
     }
 }
