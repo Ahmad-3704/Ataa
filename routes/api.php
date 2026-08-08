@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Http\Request;
+use App\Http\Controllers\Api\AutoDonationController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\AdminAuthController;
@@ -63,4 +64,9 @@ Route::middleware(['auth:sanctum', 'role:donor'])->group(function () {
     Route::get('/donor/dashboard', function () {
         return response()->json(['message' => 'مرحباً بك في واجهة المتبرع']);
     });
+
+    // مسارات التبرع التلقائي
+    Route::get('/auto-donations', [AutoDonationController::class, 'index']);
+    Route::post('/auto-donations', [AutoDonationController::class, 'store']);
+    Route::put('/auto-donations/status', [AutoDonationController::class, 'toggleStatus']);
 });
