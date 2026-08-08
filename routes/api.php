@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Http\Request;
+use App\Http\Controllers\Api\AdminProjectController;
 use App\Http\Controllers\Api\AutoDonationController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
@@ -69,4 +70,14 @@ Route::middleware(['auth:sanctum', 'role:donor'])->group(function () {
     Route::get('/auto-donations', [AutoDonationController::class, 'index']);
     Route::post('/auto-donations', [AutoDonationController::class, 'store']);
     Route::put('/auto-donations/status', [AutoDonationController::class, 'toggleStatus']);
+});
+// ==========================================
+// مسارات الإدارة (مسجل دخول + دور أدمن فقط)
+// ==========================================
+Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
+    // عرض المشاريع المعلقة
+    Route::get('/admin/projects/pending', [AdminProjectController::class, 'pendingProjects']);
+
+    // تغيير حالة المشروع (قبول أو رفض)
+    Route::put('/admin/projects/{id}/status', [AdminProjectController::class, 'updateStatus']);
 });
