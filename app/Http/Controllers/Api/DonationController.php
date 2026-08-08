@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Http\Controllers\Api;
-
+use App\Models\Notification;
 use App\Http\Controllers\Controller;
 use App\Models\Donation;
 use App\Models\Project;
@@ -73,6 +73,12 @@ class DonationController extends Controller
             'amount' => $amount,
             'type' => 'donation', // نوع العملية: تبرع
             'status' => 'completed',
+        ]);
+        // إرسال إشعار للمتبرع
+        Notification::create([
+            'user_id' => $user->id,
+            'title' => 'تبرع ناجح، تقبل الله!',
+            'message' => "تم التبرع بمبلغ {$request->amount} لمشروع '{$project->title}' بنجاح."
         ]);
 
         return response()->json([

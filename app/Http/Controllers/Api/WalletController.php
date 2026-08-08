@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Http\Controllers\Api;
-
+use App\Models\Notification;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Transaction; // استدعاء مودل العمليات
@@ -30,6 +30,13 @@ class WalletController extends Controller
             'amount' => $request->amount,
             'type' => 'deposit', // نوع العملية: إيداع/شحن
             'status' => 'completed',
+
+        ]);
+        // إرسال إشعار للمستخدم
+        Notification::create([
+            'user_id' => $user->id,
+            'title' => 'تم شحن المحفظة بنجاح',
+            'message' => "تم إضافة مبلغ {$request->amount} إلى محفظتك. رصيدك الحالي هو {$user->wallet_balance}."
         ]);
 
         return response()->json([

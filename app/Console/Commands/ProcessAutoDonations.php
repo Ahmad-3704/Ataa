@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Console\Commands;
-
+use App\Models\Notification;
 use Illuminate\Console\Command;
 use App\Models\AutoDonation;
 use App\Models\Transaction;
@@ -71,7 +71,12 @@ class ProcessAutoDonations extends Command
                         'type' => 'donation', // يمكن تغييرها لاحقاً إلى auto_donation إذا تم إضافتها للـ enum
                         'status' => 'completed',
                     ]);
-
+// إشعار بالنجاح
+                    Notification::create([
+                        'user_id' => $user->id,
+                        'title' => 'تم تنفيذ التبرع التلقائي',
+                        'message' => "تم خصم مبلغ {$donationConfig->amount} كتبرع تلقائي من محفظتك. تقبل الله!"
+                    ]);
                     // (هنا يمكننا لاحقاً إضافة الكود الخاص بإرسال الإشعار بنجاح العملية)
 
                     // 4. تحديث وقت آخر معالجة
@@ -82,6 +87,21 @@ class ProcessAutoDonations extends Command
                 } else {
                     // (هنا يمكننا لاحقاً إضافة الكود الخاص بإرسال إشعار بنقص الرصيد)
                     $this->error("الرصيد غير كافٍ للمستخدم: {$user->name}");
+                    // 1. التحقق من توفر الرصيد
+                if ($user->wallet_balance >= $donationConfig->amount) {
+
+                    // ... (كود الخصم وإشعار النجاح اللي ضفناه) ...
+
+                } else {
+                    $this->error("الرصيد غير كافٍ للمستخدم: {$user->name}");
+
+                    // إشعار بالفشل
+                    Notification::create([
+                        'user_id' => $user->id,
+                        'title' => 'فشل التبرع التلقائي',
+                        'message' => "لم يتم تنفيذ تبرعك التلقائي بمبلغ {$donationConfig->amount} بسبب عدم كفاية الرصيد. يرجى شحن محفظتك."
+                    ]);
+                }
                 }
             // }
         }

@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Http\Request;
+use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\AdminProjectController;
 use App\Http\Controllers\Api\AutoDonationController;
 use Illuminate\Support\Facades\Route;
@@ -44,6 +45,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/donations', [DonationController::class, 'store']);
     Route::get('/donations', [DonationController::class, 'index']);
     Route::post('/wallet/top-up', [WalletController::class, 'topUp']);
+
+    // مسارات الإشعارات (جديد)
+    Route::get('/notifications', [NotificationController::class, 'index']);
+    Route::put('/notifications/{id}/read', [NotificationController::class, 'markAsRead']);
+    Route::put('/notifications/read-all', [NotificationController::class, 'markAllAsRead']);
 });
 
 // ==========================================
@@ -71,6 +77,7 @@ Route::middleware(['auth:sanctum', 'role:donor'])->group(function () {
     Route::post('/auto-donations', [AutoDonationController::class, 'store']);
     Route::put('/auto-donations/status', [AutoDonationController::class, 'toggleStatus']);
 });
+
 // ==========================================
 // مسارات الإدارة (مسجل دخول + دور أدمن فقط)
 // ==========================================
