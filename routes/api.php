@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Http\Request;
+use App\Http\Controllers\Api\AgentTaskController;
 use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\AdminProjectController;
 use App\Http\Controllers\Api\AutoDonationController;
@@ -87,4 +88,14 @@ Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
 
     // تغيير حالة المشروع (قبول أو رفض)
     Route::put('/admin/projects/{id}/status', [AdminProjectController::class, 'updateStatus']);
+});
+// ==========================================
+// مسارات المندوب (مسجل دخول + دور مندوب فقط)
+// ==========================================
+Route::middleware(['auth:sanctum', 'role:agent'])->group(function () {
+    // عرض مهام المندوب
+    Route::get('/agent/tasks', [AgentTaskController::class, 'index']);
+
+    // مسح الـ QR لتأكيد المهمة
+    Route::post('/agent/tasks/scan', [AgentTaskController::class, 'scanQrCode']);
 });
