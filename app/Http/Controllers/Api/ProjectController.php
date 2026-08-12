@@ -51,13 +51,12 @@ class ProjectController extends Controller
     public function store(Request $request)
     {
         // التحقق من أن المستخدم يملك بروفايل جمعية
-        if ($request->user()->role !== 'organization' || !$request->user()->organization) {
+    if ($request->user()->role !== 'organization') {
             return response()->json([
                 'status' => 'error',
-                'message' => 'غير مصرح لك بإضافة مشاريع. يجب أن يكون حسابك جمعية مكتملة البيانات.'
+                'message' => 'غير مصرح لك بإضافة مشاريع. هذا القسم مخصص للجمعيات فقط.'
             ], 403);
         }
-
         // التحقق من البيانات المدخلة
         $request->validate([
             'title' => 'required|string|max:255',
@@ -70,8 +69,7 @@ class ProjectController extends Controller
 
         // إنشاء المشروع (ستكون حالته الافتراضية 'pending' حسب الداتا بيز)
         $project = Project::query()->create([
-            'organization_id' => $organization->id,
-            'title' => $request->title,
+            'organization_id' => $request->user()->id,            'title' => $request->title,
             'description' => $request->description,
             'target_amount' => $request->target_amount,
             'is_urgent' => $request->is_urgent ?? false, // حفظ الحالة العاجلة

@@ -14,21 +14,22 @@ class AuthController extends Controller
     // دالة إنشاء الحساب
    public function register(Request $request)
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:6',
-            'phone' => 'required|string',
-            'role' => 'required|in:donor,agent,organization,beneficiary',
+         $validated = $request->validate([
+    'name' => 'required|string|max:255',
+    'email' => 'required|string|email|max:255|unique:users',
+    'password' => 'required|string|min:8|confirmed',
+    'phone' => 'required|string',
+    'role' => 'nullable|string|in:donor,organization,agent,admin', // << لازم يكون هاد السطر موجود
+
         ]);
 
-        $user = User::create([
-            'name' => $validated['name'],
-            'email' => $validated['email'],
-            'password' => Hash::make($validated['password']),
-            'phone' => $validated['phone'],
-            'role' => $validated['role'],
-        ]);
+       $user = User::create([
+    'name' => $validated['name'],
+    'email' => $validated['email'],
+    'password' => Hash::make($validated['password']),
+    'phone' => $validated['phone'],
+    'role' => $validated['role'] ?? 'donor', // أمان إضافي لإعطاء دور افتراضي
+]);
 
         // ---  : إنشاء محفظة صفرية للمستخدم فوراً ---
         Wallet::create([
@@ -53,7 +54,7 @@ class AuthController extends Controller
             'password' => 'required',
         ]);
 
-        $user = User::where('email', $request->email)->first();
+        $user = User::query()->where('email', $request->email)->first();
 
         if (!$user || !Hash::check($request->password, $user->password)) {
             return response()->json(['message' => 'بيانات الدخول غير صحيحة'], 401);

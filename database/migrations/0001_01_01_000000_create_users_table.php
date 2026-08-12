@@ -15,8 +15,7 @@ return new class extends Migration
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password'); // كلمة المرور
             $table->string('phone'); // رقم الهاتف
-            $table->enum('role', ['donor', 'agent', 'organization', 'beneficiary']); // نوع المستخدم
-            $table->string('profile_image')->nullable(); // صورة المستخدم
+            $table->enum('role', ['donor', 'agent', 'organization', 'admin'])->default('donor');             $table->string('profile_image')->nullable(); // صورة المستخدم
             $table->rememberToken();
             $table->timestamps(); // ينشئ created_at و updated_at
         });

@@ -99,3 +99,9 @@ Route::middleware(['auth:sanctum', 'role:agent'])->group(function () {
     // مسح الـ QR لتأكيد المهمة
     Route::post('/agent/tasks/scan', [AgentTaskController::class, 'scanQrCode']);
 });
+Route::middleware('auth:sanctum')->get('/user', function (Illuminate\Http\Request $request) {
+    return response()->json([
+        'status' => 'success',
+        'data' => $request->user()
+    ]);
+});
