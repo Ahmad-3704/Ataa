@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 use App\Models\Notification;
+use App\Models\User; // تم إضافة مودل المستخدم لكي نرسل له الإشعار
 use App\Http\Controllers\Controller;
 use App\Models\Project;
 use Illuminate\Http\Request;
@@ -49,16 +50,24 @@ class AdminProjectController extends Controller
         // تحديث الحالة
         $project->status = $request->status;
         $project->save();
-// إرسال إشعار للجمعية صاحبة المشروع
+
+        // إعداد نصوص الإشعار
         $statusAr = $request->status == 'approved' ? 'الموافقة على' : 'رفض';
-        // ملاحظة: استبدل organization_id بالحقل الذي يربط المشروع بالجمعية في قاعدة بياناتك (مثلاً user_id)
         $orgUserId = $project->organization->user_id ?? $project->organization_id;
 
+        // 1. نظام الإشعارات المحلي الخاص بك (تم الاحتفاظ به)
         Notification::create([
             'user_id' => $orgUserId,
             'title' => "تحديث حالة المشروع",
             'message' => "تم $statusAr مشروعك '{$project->title}' من قبل الإدارة."
         ]);
+
+        // 2. نظام إشعارات لارافيل (الإضافة الجديدة)
+        $organizationUser = User::query()->find($orgUserId);
+        if ($organizationUser) {
+            $organizationUser->notify(new \App\Notifications\ProjectStatusNotification($project, $statusAr));
+        }
+
         $statusMsg = $request->status == 'approved' ? 'مقبول' : 'مرفوض';
 
         return response()->json([

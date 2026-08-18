@@ -2,11 +2,7 @@
 
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
-use Illuminate\Support\Facades\Schedule;
 
 Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
-})->purpose('Display an inspiring quote')->hourly();
-
-// جدولة أمر التبرع التلقائي ليعمل بشكل يومي
-Schedule::command('donations:process-auto')->daily();
+})->purpose('Display an inspiring quote');

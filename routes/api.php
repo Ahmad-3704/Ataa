@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Http\Request;
+use App\Http\Controllers\DeliveryTaskController;
 use App\Http\Controllers\Api\AgentTaskController;
 use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\AdminProjectController;
@@ -88,7 +89,11 @@ Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
 
     // تغيير حالة المشروع (قبول أو رفض)
     Route::put('/admin/projects/{id}/status', [AdminProjectController::class, 'updateStatus']);
+
+    // مسار إسناد المهمة (محمي - خاص بالإدارة فقط)
+    Route::post('/tasks/assign', [DeliveryTaskController::class, 'assignTask']);
 });
+
 // ==========================================
 // مسارات المندوب (مسجل دخول + دور مندوب فقط)
 // ==========================================
@@ -98,7 +103,11 @@ Route::middleware(['auth:sanctum', 'role:agent'])->group(function () {
 
     // مسح الـ QR لتأكيد المهمة
     Route::post('/agent/tasks/scan', [AgentTaskController::class, 'scanQrCode']);
+
+    // مسار تأكيد التسليم (محمي - خاص بالمندوب فقط)
+    Route::post('/tasks/confirm', [DeliveryTaskController::class, 'confirmDelivery']);
 });
+
 Route::middleware('auth:sanctum')->get('/user', function (Illuminate\Http\Request $request) {
     return response()->json([
         'status' => 'success',

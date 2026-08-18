@@ -2,30 +2,35 @@
 
 namespace App\Models;
 
+// use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Laravel\Sanctum\HasApiTokens;
+use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Laravel\Sanctum\HasApiTokens; // ضروري جداً لتوليد توكن تسجيل الدخول
 
 class User extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable;
+    /** @use HasFactory<UserFactory> */
+use HasApiTokens, HasFactory, Notifiable;
 
     /**
-     * الحقول المسموح تعبئتها
+     * The attributes that are mass assignable.
+     *
+     * @var list<string>
      */
     protected $fillable = [
         'name',
         'email',
         'password',
-        'phone',
+        'phone',    // <--- أضف هذا
         'role',
-        'profile_image',
-        'wallet_balance'
     ];
 
     /**
-     * الحقول المخفية (لا تظهر عند استرجاع البيانات)
+     * The attributes that should be hidden for serialization.
+     *
+     * @var list<string>
      */
     protected $hidden = [
         'password',
@@ -33,7 +38,9 @@ class User extends Authenticatable
     ];
 
     /**
-     * تحويل أنواع الحقول
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
      */
     protected function casts(): array
     {
@@ -41,36 +48,5 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
-    }
-    // المستخدم يملك محفظة واحدة
-    public function wallet()
-    {
-        return $this->hasOne(Wallet::class);
-    }
-    // المستخدم قد يكون لديه ملف جمعية ملحق
-    public function organization()
-    {
-        return $this->hasOne(Organization::class);
-    }
-    // المستخدم قد يكون لديه ملف مندوب ملحق
-    public function agent()
-    {
-        return $this->hasOne(Agent::class);
-    }
-    // المستخدم قد يكون مستفيداً
-    public function beneficiary()
-    {
-        return $this->hasOne(Beneficiary::class);
-    }
-
-    // المستخدم قد يكون متبرعاً
-    public function donor()
-    {
-        return $this->hasOne(Donor::class);
-    }
-    // المستخدم يملك عدة تبرعات
-    public function donations()
-    {
-        return $this->hasMany(Donation::class);
     }
 }

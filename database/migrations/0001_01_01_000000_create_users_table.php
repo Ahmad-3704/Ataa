@@ -6,18 +6,19 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
+    /**
+     * Run the migrations.
+     */
     public function up(): void
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
-            $table->string('name'); // اسم المستخدم
-            $table->string('email')->unique(); // البريد الإلكتروني
+            $table->string('name');
+            $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
-            $table->string('password'); // كلمة المرور
-            $table->string('phone'); // رقم الهاتف
-            $table->enum('role', ['donor', 'agent', 'organization', 'admin'])->default('donor');             $table->string('profile_image')->nullable(); // صورة المستخدم
+            $table->string('password');
             $table->rememberToken();
-            $table->timestamps(); // ينشئ created_at و updated_at
+            $table->timestamps();
         });
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {
@@ -36,6 +37,9 @@ return new class extends Migration
         });
     }
 
+    /**
+     * Reverse the migrations.
+     */
     public function down(): void
     {
         Schema::dropIfExists('users');

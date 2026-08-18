@@ -37,10 +37,11 @@ class Project extends Model
     /**
      * المشروع يتبع لجمعية واحدة
      */
-    public function organization()
-    {
-        return $this->belongsTo(Organization::class);
-    }
+   public function organization()
+{
+    // نخبر لارافيل أن يجلب بيانات الجمعية من جدول المستخدمين بناءً على حقل organization_id
+    return $this->belongsTo(User::class, 'organization_id');
+}
 
     /**
      * المشروع قد يحتوي على عدة تبرعات
