@@ -51,12 +51,13 @@ class ProjectController extends Controller
     public function store(Request $request)
     {
         // التحقق من أن المستخدم يملك بروفايل جمعية
-    if ($request->user()->role !== 'organization') {
+        if ($request->user()->role !== 'organization') {
             return response()->json([
                 'status' => 'error',
                 'message' => 'غير مصرح لك بإضافة مشاريع. هذا القسم مخصص للجمعيات فقط.'
             ], 403);
         }
+
         // التحقق من البيانات المدخلة
         $request->validate([
             'title' => 'required|string|max:255',
@@ -65,11 +66,10 @@ class ProjectController extends Controller
             'is_urgent' => 'sometimes|boolean', // السماح بتحديد الحالة العاجلة
         ]);
 
-        $organization = $request->user()->organization;
-
         // إنشاء المشروع (ستكون حالته الافتراضية 'pending' حسب الداتا بيز)
         $project = Project::query()->create([
-            'organization_id' => $request->user()->id,            'title' => $request->title,
+            'organization_id' => $request->user()->id,
+            'title' => $request->title,
             'description' => $request->description,
             'target_amount' => $request->target_amount,
             'is_urgent' => $request->is_urgent ?? false, // حفظ الحالة العاجلة
@@ -102,6 +102,54 @@ class ProjectController extends Controller
             'status' => 'success',
             'message' => 'تم جلب تفاصيل المشروع بنجاح',
             'data' => $project
+        ]);
+    }
+
+    /**
+     * تعديل بيانات المشروع
+     */
+    public function update(Request $request, $id)
+    {
+        $project = Project::query()
+            ->find($id);
+
+        if (!$project) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'المشروع غير موجود.'
+            ], 404);
+        }
+
+        // تحديث البيانات
+        $project->update($request->all());
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'تم تعديل بيانات المشروع بنجاح',
+            'data' => $project
+        ]);
+    }
+
+    /**
+     * حذف أو أرشفة المشروع
+     */
+    public function destroy($id)
+    {
+        $project = Project::query()
+            ->find($id);
+
+        if (!$project) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'المشروع غير موجود.'
+            ], 404);
+        }
+
+        $project->delete($id);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'تم حذف المشروع بنجاح'
         ]);
     }
 }

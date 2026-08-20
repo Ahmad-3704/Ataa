@@ -14,12 +14,19 @@ class DonationController extends Controller
     /**
      * استعراض سجل تبرعات المستخدم
      */
+ /**
+     * استعراض سجل تبرعات المستخدم
+     */
     public function index(Request $request)
     {
         // استخدام الأسلوب المعتمد: تهيئة الاستعلام أولاً
         $donations = Donation::query()
             ->where('user_id', $request->user()->id)
-            ->with('project:id,title') // جلب اسم المشروع فقط لتخفيف الضغط
+            // التعديل هنا: جلب تفاصيل المشروع + تفاصيل المتبرع لتطابق طلب الفرونت إند
+            ->with([
+                'project:id,title',
+                'user:id,name,email'
+            ])
             ->orderBy('created_at', 'desc')
             ->get();
 
@@ -38,7 +45,6 @@ class DonationController extends Controller
             'data' => $donations
         ]);
     }
-
     /**
      * عملية تبرع لمشروع
      */

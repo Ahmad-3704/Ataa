@@ -6,6 +6,8 @@ use App\Http\Controllers\Api\AgentTaskController;
 use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\AdminProjectController;
 use App\Http\Controllers\Api\AutoDonationController;
+use App\Http\Controllers\Api\AdminAgentController;
+use App\Http\Controllers\Api\AdminStatsController; // تم إضافة كنترولر الإحصائيات هنا
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\AdminAuthController;
@@ -89,6 +91,17 @@ Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
 
     // تغيير حالة المشروع (قبول أو رفض)
     Route::put('/admin/projects/{id}/status', [AdminProjectController::class, 'updateStatus']);
+
+    // مسارات التعديل والحذف (خاصة بالإدارة)
+    Route::put('/projects/{id}', [ProjectController::class, 'update']);
+    Route::delete('/projects/{id}', [ProjectController::class, 'destroy']);
+
+    // --- المسارات الجديدة لإدارة المندوبين ---
+    Route::get('/admin/agents', [AdminAgentController::class, 'index']);
+    Route::put('/admin/agents/{id}/status', [AdminAgentController::class, 'updateStatus']);
+
+    // --- مسار الإحصائيات (الداش بورد) ---
+    Route::get('/admin/stats', [AdminStatsController::class, 'index']);
 
     // مسار إسناد المهمة (محمي - خاص بالإدارة فقط)
     Route::post('/tasks/assign', [DeliveryTaskController::class, 'assignTask']);

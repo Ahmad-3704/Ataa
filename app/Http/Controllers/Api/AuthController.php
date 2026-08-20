@@ -1,6 +1,5 @@
 <?php
 
-
 namespace App\Http\Controllers\Api;
 
 use App\Models\Wallet; // أضف هذا السطر مع الـ imports في الأعلى
@@ -8,28 +7,37 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rules\Password; // تم إضافة كلاس حماية كلمة المرور هنا
 
 class AuthController extends Controller
 {
     // دالة إنشاء الحساب
-   public function register(Request $request)
+    public function register(Request $request)
     {
-         $validated = $request->validate([
-    'name' => 'required|string|max:255',
-    'email' => 'required|string|email|max:255|unique:users',
-    'password' => 'required|string|min:8|confirmed',
-    'phone' => 'required|string',
-    'role' => 'nullable|string|in:donor,organization,agent,admin', // << لازم يكون هاد السطر موجود
-
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            // إجبار المستخدم على صيغة إيميل صحيحة (يجب أن يحوي @ ونطاق صالح)
+            'email' => 'required|string|email|max:255|unique:users',
+            // شروط كلمة المرور: 7 أحرف على الأقل، حروف، أرقام، رموز، مع التأكيد
+            'password' => [
+                'required',
+                'confirmed',
+                Password::min(7)
+                    ->letters()
+                    ->numbers()
+                    ->symbols()
+            ],
+            'phone' => 'required|string',
+            'role' => 'nullable|string|in:donor,organization,agent,admin', // << لازم يكون هاد السطر موجود
         ]);
 
-       $user = User::create([
-    'name' => $validated['name'],
-    'email' => $validated['email'],
-    'password' => Hash::make($validated['password']),
-    'phone' => $validated['phone'],
-    'role' => $validated['role'] ?? 'donor', // أمان إضافي لإعطاء دور افتراضي
-]);
+        $user = User::create([
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+            'password' => Hash::make($validated['password']),
+            'phone' => $validated['phone'],
+            'role' => $validated['role'] ?? 'donor', // أمان إضافي لإعطاء دور افتراضي
+        ]);
 
         // ---  : إنشاء محفظة صفرية للمستخدم فوراً ---
         Wallet::create([
@@ -46,6 +54,7 @@ class AuthController extends Controller
             'token' => $token
         ], 201);
     }
+
     // دالة تسجيل الدخول
     public function login(Request $request)
     {
